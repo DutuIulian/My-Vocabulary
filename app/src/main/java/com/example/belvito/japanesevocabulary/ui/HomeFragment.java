@@ -1,12 +1,10 @@
 package com.example.belvito.japanesevocabulary.ui;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,11 +43,11 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
         currentDefinition = definitionsManager.getNextDefinition(true);
-        question = (TextView) root.findViewById(R.id.question);
+        question = root.findViewById(R.id.question);
         question.setText(currentDefinition.getExpression());
-        answer = (EditText) root.findViewById(R.id.answer);
-        markEdit = (EditText) root.findViewById(R.id.markEdit);
-        information = (TextView) root.findViewById(R.id.information);
+        answer = root.findViewById(R.id.answer);
+        markEdit = root.findViewById(R.id.markEdit);
+        information = root.findViewById(R.id.information);
         information.setText(definitionsManager.getInformation());
         return root;
     }

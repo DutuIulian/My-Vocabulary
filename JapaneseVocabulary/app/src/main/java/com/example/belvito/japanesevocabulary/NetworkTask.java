@@ -17,7 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.support.v4.app.ActivityCompat.requestPermissions;
+import static androidx.core.app.ActivityCompat.requestPermissions;
 
 class NetworkTask0 {/*
     private static String DB_PATH="";//"/data/data/com.example.belvito.japanesevocabulary/";
