@@ -2,7 +2,6 @@ package com.example.belvito.japanesevocabulary;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
@@ -19,11 +18,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
-import java.util.StringTokenizer;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static String DB_PATH;
     private static String DB_NAME = "data.db";
+    private static String TABLE_NAME = "expressions";
     private static final int DB_VERSION = 1;
 
     private SQLiteDatabase mDataBase;
@@ -43,27 +42,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         this.getReadableDatabase();
     }
 
-    /*
-    public void updateDataBase() throws IOException {
-        if (mNeedUpdate) {
-            File dbFile = new File(DB_PATH + DB_NAME);
-            if (dbFile.exists())
-                dbFile.delete();
-
-            copyDataBase();
-
-            mNeedUpdate = false;
-        }
-    }
-    */
-
-    private boolean checkDataBase() {
+    private boolean dataBaseFileExists() {
         File dbFile = new File(DB_PATH + DB_NAME);
         return dbFile.exists();
     }
 
     private void copyDataBase() {
-        if (!checkDataBase()) {
+        if (!dataBaseFileExists()) {
             this.getReadableDatabase();
             this.close();
             try {
@@ -75,7 +60,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void copyDBFile() throws IOException {
-        //InputStream mInput = mContext.getAssets().open(DB_NAME);
         InputStream mInput = mContext.getResources().openRawResource(R.raw.data);
         OutputStream mOutput = new FileOutputStream(DB_PATH + DB_NAME);
         byte[] mBuffer = new byte[1024];
@@ -100,10 +84,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 int i = line.indexOf('=');
                 String expr = line.substring(0, i);
                 String trans = line.substring(i + 1); Log.e("nmc",trans);
-                Cursor c = db.rawQuery("SELECT * FROM hapineza " +
-                        "WHERE expression LIKE \"" + expr + "\"", null);
+                Cursor c = db.rawQuery("SELECT * FROM " + TABLE_NAME +
+                        " WHERE expression LIKE \"" + expr + "\"", null);
                 if(c.getCount() == 0) {
-                    db.execSQL("INSERT INTO hapineza(expression, translation)" +
+                    db.execSQL("INSERT INTO " + TABLE_NAME + "(expression, translation)" +
                             "VALUES(\"" + expr + "\", \"" + trans + "\")");
                     changes = true;
                 }
@@ -159,11 +143,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         FileChannel fromChannel = mInput.getChannel();
         FileChannel toChannel = mOutput.getChannel();
         fromChannel.transferTo(0, fromChannel.size(), toChannel);
-    }
-
-    public boolean openDataBase() throws SQLException {
-        mDataBase = SQLiteDatabase.openDatabase(DB_PATH + DB_NAME, null, SQLiteDatabase.CREATE_IF_NECESSARY);
-        return mDataBase != null;
     }
 
     @Override

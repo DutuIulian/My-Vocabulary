@@ -1,157 +1,89 @@
 package com.example.belvito.japanesevocabulary;
 
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.belvito.japanesevocabulary.ui.DefinitionsFragment;
+import com.example.belvito.japanesevocabulary.ui.HomeFragment;
 
-    private DatabaseHelper dbh;
-    private DefinitionsManager defm;
-    private Definition currentDefinition;
-    private TextView question, information;
-    private EditText answer, markEdit;
-    private State state = State.NOTHING;
-
-    private enum State {
-        NOTHING, SHOWN, VOTED
-    }
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private DrawerLayout drawerLayout;
+    private DatabaseHelper databaseHelper;
+    private DefinitionsManager definitionsManager;
+    private HomeFragment homeFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        dbh = new DatabaseHelper(this);
-        defm = new DefinitionsManager(dbh, this);
-        currentDefinition = defm.getNextDefinition(true);
-        question = (TextView) findViewById(R.id.question);
-        question.setText(currentDefinition.getExpression());
-        answer = (EditText) findViewById(R.id.answer);
-        markEdit = (EditText) findViewById(R.id.markEdit);
-        information = (TextView) findViewById(R.id.information);
-        information.setText(defm.getInformation());
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout,
+                toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        databaseHelper = new DatabaseHelper(this);
+        definitionsManager = new DefinitionsManager(databaseHelper, this);
+
+        if (savedInstanceState == null) {
+            homeFragment = new HomeFragment();
+            homeFragment.setDatabaseHelper(databaseHelper);
+            homeFragment.setDefinitionsManager(definitionsManager);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                    homeFragment).commit();
+            navigationView.setCheckedItem(R.id.nav_home);
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.nav_home:
+                homeFragment = new HomeFragment();
+                homeFragment.setDatabaseHelper(databaseHelper);
+                homeFragment.setDefinitionsManager(definitionsManager);
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        homeFragment).commit();
+                break;
+            case R.id.nav_definitions:
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        new DefinitionsFragment()).commit();
+                homeFragment = null;
+                break;
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        //DefinitionsManager.commitChanges();
     }
 
-    public void showButtonPressed(View v) {
-        if (state == State.NOTHING && currentDefinition.getID() != 0) {
-            question.append("\n" + currentDefinition.getTranslation());
-            question.append("\nMark: " + currentDefinition.getMark());
-            state = State.SHOWN;
-        }
-    }
-
-    public void upvoteButtonPressed(View v) {
-        if (state == State.SHOWN) {
-            defm.vote(1);
-            state = State.VOTED;
-        }
-    }
-
-    public void downvoteButtonPressed(View v) {
-        if (state == State.SHOWN) {
-            defm.vote(-1);
-            state = State.VOTED;
-        }
-    }
-
-    public void nextButtonPressed(View v) {
-        if (state == State.VOTED) {
-            nextDefinition(true);
-        }
-    }
-
-    private void nextDefinition(boolean voted) {
-        currentDefinition = defm.getNextDefinition(voted);
-        question.setText(currentDefinition.getExpression());
-        answer.setText("");
-        markEdit.setText("");
-        state = State.NOTHING;
-    }
-
-    /*public void nextTargetPressed(View v) {
-        final Context context = this;
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        defm.nextTarget();
-                        information.setText(defm.getInformation());
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        Toast.makeText(context, "Next target cancelled", Toast.LENGTH_LONG).show();
-                        break;
-                }
-            }
-        };
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener).show();
-
-    }*/
-
-    public void skipButtonPressed(View v) {
-        nextDefinition(false);
-    }
-
-    public void importExprButtonPressed(View v) {
-        if(dbh.importNewExpressions()) {
-            defm.repopulateList();
-            nextDefinition(true);
-        }
-    }
-
-    public void importButtonPressed(View v) {
-        final Context context = this;
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        dbh.importDBFile();
-                        defm.repopulateList();
-                        nextDefinition(true);
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        Toast.makeText(context, "Import cancelled", Toast.LENGTH_LONG).show();
-                        break;
-                }
-            }
-        };
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener).show();
-
-    }
-
-    public void exportButtonPressed(View v) {
-        dbh.exportDBFile();
-    }
-
-    public void informationChanged(String info) {
-        information.setText(info);
-    }
-
-    public void mark(View v) {
-        String markString = markEdit.getText().toString();
-        defm.markCurrentDef(markString);
+    public void informationChanged(String information) {
+        homeFragment.informationChanged(information);
     }
 }

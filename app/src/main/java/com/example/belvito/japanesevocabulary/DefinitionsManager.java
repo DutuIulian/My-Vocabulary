@@ -10,13 +10,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-class DefinitionsManager {
+public class DefinitionsManager {
     private final static int MAX_QUESTIONS = 10;
-    //private final static double CONSTANT = 1.045493677;
-    private final static String TABLE = "hapineza";
+    private final static String TABLE = "expressions";
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    //private static String PATH;
-    //private double desiredDaily, currentDaily;
     private int newQuestions, questionsForToday;
     private MainActivity activity;
     private SQLiteDatabase db;
@@ -24,28 +21,22 @@ class DefinitionsManager {
     private List<Definition> definitions = new ArrayList();
 
     public DefinitionsManager(DatabaseHelper dbh, MainActivity activity) {
-        /*if (android.os.Build.VERSION.SDK_INT >= 17) {
-            PATH = activity.getApplicationInfo().dataDir + "/databases/";
-        } else {
-            PATH = "/data/data/" + activity.getPackageName() + "/databases/";
-        }*/
         this.activity = activity;
         db = dbh.getReadableDatabase();
-        //readDesiredNumber();
-        calculateRemainingQuestNmb();
-        populateList();
+        calculateRemainingNumberOfQuestions();
+        populateDefinitionList();
     }
 
-    private void calculateRemainingQuestNmb() {
+    private void calculateRemainingNumberOfQuestions() {
         String query1 = "SELECT COUNT(*) FROM " + TABLE + " WHERE rightAnswers = 0";
         Cursor cursor = db.rawQuery(query1,null);
         cursor.moveToFirst();
         newQuestions = cursor.getInt(0);
         cursor.close();
+
         String query2 = "SELECT COUNT(*) FROM " + TABLE + " " +
                 "WHERE rightAnswers = 0 " +
-                "OR julianday(current_date) + 1 - julianday(lastAnswer) - rememberInterv > 0 " +
-                "AND julianday(current_date) - julianday(lastAnswer) > 0";
+                "OR julianday(current_date) + 1 - julianday(lastAnswer) - rememberInterv > 0 ";
         cursor = db.rawQuery(query2, null);
         cursor.moveToFirst();
         questionsForToday = cursor.getInt(0);
@@ -54,8 +45,8 @@ class DefinitionsManager {
 
     public Definition getNextDefinition(boolean voted) {
         try {
-            if(!voted && definitions.isEmpty()) {
-                populateList();
+            if(!voted && definitions.isEmpty()) { //todo: why !voted?
+                populateDefinitionList();
             }
             currentDefinition = definitions.get(0);
             definitions.remove(0);
@@ -65,52 +56,16 @@ class DefinitionsManager {
         }
     }
 
-    /*private void readDesiredNumber() {
-        BufferedReader bfr = null;
-        try {
-            FileReader fr = new FileReader(PATH + "desired_daily.txt");
-            bfr = new BufferedReader(fr);
-            desiredDaily = Double.parseDouble(bfr.readLine());
-        } catch(FileNotFoundException e) {
-            desiredDaily = 164.5108741;
-            writeDesiredNumberFile();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        closeSilently(bfr);
-    }*/
-
-    /*private void writeDesiredNumberFile() {
-        BufferedWriter bfw = null;
-        try {
-            FileWriter fw = new FileWriter(PATH + "desired_daily.txt");
-            bfw = new BufferedWriter(fw);
-            bfw.write(Double.toString(desiredDaily));
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        closeSilently(bfw);
-    }*/
-
-    /*private void closeSilently(Closeable c) {
-        try {
-            if(c != null) {
-                c.close();
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-    }*/
-
     public void repopulateList() {
         definitions.clear();
-        populateList();
-        calculateRemainingQuestNmb();
+        populateDefinitionList();
+        calculateRemainingNumberOfQuestions();
         activity.informationChanged(getInformation());
     }
 
-    private void populateList() {
+    private void populateDefinitionList() {
         try {
+            //add the questions with 0 right answers
             String query = "SELECT * FROM " + TABLE + " WHERE rightAnswers = 0";
             Cursor cursor = db.rawQuery(query, null);
             cursor.moveToFirst();
@@ -120,9 +75,11 @@ class DefinitionsManager {
             }
             cursor.close();
             if(!definitions.isEmpty()) {
+                //if we have questions with 0 right answers, shuffle them and add one old question
                 Collections.shuffle(definitions);
                 definitions.addAll(getOldQuestions(1));
             } else {
+                //otherwise, add only old questions
                 definitions.addAll(getOldQuestions(MAX_QUESTIONS));
             }
         } catch(Exception e) {
@@ -133,6 +90,8 @@ class DefinitionsManager {
     private List<Definition> getOldQuestions(int count) {
         List<Integer> indList = new ArrayList();
         double[][] probabilities = getProbabilities();
+        //elementul i este ales daca nr random este cuprins intre probabilities[i][0] si probabilities[i + 1][0]
+        //probabilities[i][1] reprezinta index-ul elementului i in tabela
         if(probabilities == null) {
             return new ArrayList();
         }
@@ -145,6 +104,7 @@ class DefinitionsManager {
                 rand = 100 * r.nextDouble();
                 j = binarySearch(rand, probabilities);
             } while(indList.contains(j));
+            //daca elementul gasit este deja in lista, cauta altul
             indList.add(j);
         }
         StringBuilder sb = new StringBuilder("(");
@@ -154,14 +114,13 @@ class DefinitionsManager {
         }
         sb.append(indList.get(indList.size() - 1));
         sb.append(")");
-        return getDefs(sb);
+        return getDefinitions(sb);
     }
 
     private double[][] getProbabilities() {
         String query1 = "SELECT ID, lastAnswer, rememberInterv FROM " + TABLE + " " +
                 "WHERE rightAnswers > 0 " +
-                "AND julianday(current_timestamp) - julianday(lastAnswer) - rememberInterv > 0 " +
-                "AND julianday(current_timestamp) - julianday(lastAnswer) - 1 > 0";
+                "AND julianday(current_date)+1 - julianday(lastAnswer) - rememberInterv > 0";
         Cursor cursor = db.rawQuery(query1, null);
         double[][] probability = null;
         try {
@@ -173,13 +132,11 @@ class DefinitionsManager {
             int n = cursor.getCount();
             probability = new double[n][2];
             double sum = 0;
+
             for(int i = 0; i < n; i++) {
                 Date lastAnswer = dateFormat.parse(cursor.getString(1));
                 double rememberInterval = cursor.getDouble(2);
                 probability[i][0] = ((now - lastAnswer.getTime() - rememberInterval) / 1000.0 / 3600 / 24) / rememberInterval;
-                /*if(rememberInterval < 16) {
-                    probability[i][0] *= 12000;
-                }*/
                 probability[i][1] = cursor.getInt(0);
                 sum += probability[i][0];
                 cursor.moveToNext();
@@ -215,17 +172,17 @@ class DefinitionsManager {
         return (int)v[m][1];
     }
 
-    private List getDefs(StringBuilder sb) {
-        List defs = new ArrayList();
-        String query2 = "SELECT * FROM " + TABLE + " WHERE ID IN " + sb;
-        Cursor cursor = db.rawQuery(query2, null);
+    private List getDefinitions(StringBuilder sb) {
+        List definitions = new ArrayList();
+        String query = "SELECT * FROM " + TABLE + " WHERE ID IN " + sb;
+        Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         while(!cursor.isAfterLast()) {
-            defs.add(new Definition(cursor));
+            definitions.add(new Definition(cursor));
             cursor.moveToNext();
         }
         cursor.close();
-        return defs;
+        return definitions;
     }
 
     public String getInformation() {
@@ -234,7 +191,7 @@ class DefinitionsManager {
     }
 
     public void vote(int v) {
-        boolean b1 = currentDefinition.isOnTodaysList(db);
+        boolean wasOnTodaysListBeforeVote = currentDefinition.isOnTodaysList(db);
         if(v == 1) {
             if(currentDefinition.getRight() == 0) {
                 newQuestions--;
@@ -243,27 +200,30 @@ class DefinitionsManager {
         } else {
             currentDefinition.downvote();
         }
-        boolean b2 = currentDefinition.isOnTodaysList(db);
-        if(b1 && !b2) {
+        boolean isOnTodaysListAfterVote = currentDefinition.isOnTodaysList(db);
+        if(wasOnTodaysListBeforeVote && !isOnTodaysListAfterVote) {
             questionsForToday--;
         }
         activity.informationChanged(getInformation());
-        db.execSQL(currentDefinition.getUpdateQuery());
+        db.execSQL(currentDefinition.getUpdateQuery()); //update definition inside database
         checkEmptyListAsync();
     }
 
     public void markCurrentDef(String markString) {
+        //adds user's observation to the definition inside database
         currentDefinition.mark(markString);
         db.execSQL(currentDefinition.getUpdateQuery());
     }
 
     private void checkEmptyListAsync() {
+        //if there are no definitions left, populate list in the background
+        //so that the user can still see/vote the current definition
         if(definitions.isEmpty()) {
             new Thread(){
                 @Override
                 public void run() {
                     super.run();
-                    populateList();
+                    populateDefinitionList();
                 }
             }.start();
         }

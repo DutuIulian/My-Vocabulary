@@ -11,10 +11,10 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-class Definition
+public class Definition
 {
     private final static double FACTOR = 2;
-    private final static String TABLE_NAME = "hapineza";
+    private final static String TABLE_NAME = "expressions";
     private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private int ID;
     private String expression, translation;
@@ -35,7 +35,7 @@ class Definition
             translation = cursor.getString(2);
             right = cursor.getInt(3);
             wrong = cursor.getInt(4);
-            lastAnswer = cursor.getString(5); //Timestamp.valueOf(cursor.getString(5));
+            lastAnswer = cursor.getString(5);
             rememberInterv = cursor.getDouble(6);
             markString = cursor.getString(7);
         } catch (Exception e) {
@@ -59,32 +59,19 @@ class Definition
         return right;
     }
 
-    public int getWrong() {
-        return wrong;
-    }
-
-
-    /*public double getAnswerInterv() {
-        return (double)(System.currentTimeMillis() - lastAnswer.getTime())/(1000*60*60*24);
-    }*/
-
-    public double getRememberInterv() {
-        return rememberInterv;
-    }
-
     public String getMark() {
         return markString;
     }
 
     public String toString() {
-        return expression+" "+translation;
+        return expression + " " + translation;
     }
 
     public void upvote() {
         try {
             long lastAns = sdf.parse(lastAnswer).getTime();
-            long limit = sdf.parse("2000-01-01 00:00:00").getTime();
-            if(lastAns > limit) {
+            long earliestValidDate = sdf.parse("2000-01-01 00:00:00").getTime();
+            if(lastAns > earliestValidDate) {
                 rememberInterv = (double) (new Date().getTime() - lastAns)
                         / (1000 * 60 * 60 * 24) * FACTOR;
             } else {
@@ -118,8 +105,8 @@ class Definition
         if(right == 0) {
             return true;
         }
-        String query = "SELECT julianday(current_date)+1-julianday('" + lastAnswer + "') - " + rememberInterv + " > 0 " +
-                "AND julianday(current_date)-julianday('" + lastAnswer + "') > 0";
+        //check if end of day (YY-mm-dd 23:59:59) - last answer time > rememberInterval
+        String query = "SELECT julianday(current_date)+1 - julianday('" + lastAnswer + "') - " + rememberInterv + " > 0 ";
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         return cursor.getInt(0) == 1;
