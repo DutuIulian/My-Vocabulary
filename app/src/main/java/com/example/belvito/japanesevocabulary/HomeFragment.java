@@ -1,4 +1,4 @@
-package com.example.belvito.japanesevocabulary.ui;
+package com.example.belvito.japanesevocabulary;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -8,14 +8,10 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.belvito.japanesevocabulary.DatabaseHelper;
-import com.example.belvito.japanesevocabulary.Definition;
-import com.example.belvito.japanesevocabulary.DefinitionsManager;
-import com.example.belvito.japanesevocabulary.R;
 
 public class HomeFragment extends Fragment {
 
@@ -49,6 +45,7 @@ public class HomeFragment extends Fragment {
         markEdit = root.findViewById(R.id.markEdit);
         information = root.findViewById(R.id.information);
         information.setText(definitionsManager.getInformation());
+        addListenersToButtons(root);
         return root;
     }
 
@@ -133,8 +130,67 @@ public class HomeFragment extends Fragment {
         information.setText(info);
     }
 
-    public void mark(View v) {
+    public void markButtonPressed(View v) {
         String markString = markEdit.getText().toString();
         definitionsManager.markCurrentDef(markString);
+    }
+
+    private void addListenersToButtons(View root)
+    {
+        Button upvoteButton = root.findViewById(R.id.upvote);
+        Button downvoteButton = root.findViewById(R.id.downvote);
+        Button showButton = root.findViewById(R.id.show);
+        Button nextButton = root.findViewById(R.id.next);
+        Button skipButton = root.findViewById(R.id.skip);
+        Button markButton = root.findViewById(R.id.mark);
+        Button importExprButton = root.findViewById(R.id.importExpr);
+        Button importDbButton = root.findViewById(R.id.importDB);
+        Button exportDbButton = root.findViewById(R.id.exportDB);
+
+        upvoteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                upvoteButtonPressed(v);
+            }
+        });
+        downvoteButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                downvoteButtonPressed(v);
+            }
+        });
+        showButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showButtonPressed(v);
+            }
+        });
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                nextButtonPressed(v);
+            }
+        });
+        skipButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                skipButtonPressed(v);
+            }
+        });
+        markButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                markButtonPressed(v);
+            }
+        });
+        importExprButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                importExprButtonPressed(v);
+            }
+        });
+        importDbButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                importButtonPressed(v);
+            }
+        });
+        exportDbButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                exportButtonPressed(v);
+            }
+        });
     }
 }

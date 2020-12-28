@@ -7,13 +7,13 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.example.belvito.japanesevocabulary.ui.HomeFragment"
+        android:name="com.example.belvito.japanesevocabulary.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/nav_definitions"
-        android:name="com.example.belvito.japanesevocabulary.ui.DefinitionsFragment"
+        android:name="com.example.belvito.japanesevocabulary.DefinitionsFragment"
         android:label="@string/menu_definitions"
         tools:layout="@layout/fragment_definitions" />
 </navigation>

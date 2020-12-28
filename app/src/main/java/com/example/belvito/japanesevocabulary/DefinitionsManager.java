@@ -16,20 +16,20 @@ public class DefinitionsManager {
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private int newQuestions, questionsForToday;
     private MainActivity activity;
-    private SQLiteDatabase db;
+    private SQLiteDatabase database;
     private Definition currentDefinition;
     private List<Definition> definitions = new ArrayList();
 
-    public DefinitionsManager(DatabaseHelper dbh, MainActivity activity) {
+    public DefinitionsManager(DatabaseHelper databaseHelper, MainActivity activity) {
         this.activity = activity;
-        db = dbh.getReadableDatabase();
+        database = databaseHelper.getReadableDatabase();
         calculateRemainingNumberOfQuestions();
         populateDefinitionList();
     }
 
     private void calculateRemainingNumberOfQuestions() {
         String query1 = "SELECT COUNT(*) FROM " + TABLE + " WHERE rightAnswers = 0";
-        Cursor cursor = db.rawQuery(query1,null);
+        Cursor cursor = database.rawQuery(query1,null);
         cursor.moveToFirst();
         newQuestions = cursor.getInt(0);
         cursor.close();
@@ -37,7 +37,7 @@ public class DefinitionsManager {
         String query2 = "SELECT COUNT(*) FROM " + TABLE + " " +
                 "WHERE rightAnswers = 0 " +
                 "OR julianday(current_date) + 1 - julianday(lastAnswer) - rememberInterv > 0 ";
-        cursor = db.rawQuery(query2, null);
+        cursor = database.rawQuery(query2, null);
         cursor.moveToFirst();
         questionsForToday = cursor.getInt(0);
         cursor.close();
@@ -67,7 +67,7 @@ public class DefinitionsManager {
         try {
             //add the questions with 0 right answers
             String query = "SELECT * FROM " + TABLE + " WHERE rightAnswers = 0";
-            Cursor cursor = db.rawQuery(query, null);
+            Cursor cursor = database.rawQuery(query, null);
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 definitions.add(new Definition(cursor));
@@ -121,7 +121,7 @@ public class DefinitionsManager {
         String query1 = "SELECT ID, lastAnswer, rememberInterv FROM " + TABLE + " " +
                 "WHERE rightAnswers > 0 " +
                 "AND julianday(current_date)+1 - julianday(lastAnswer) - rememberInterv > 0";
-        Cursor cursor = db.rawQuery(query1, null);
+        Cursor cursor = database.rawQuery(query1, null);
         double[][] probability = null;
         try {
             if(cursor.getCount() == 0) {
@@ -175,7 +175,7 @@ public class DefinitionsManager {
     private List getDefinitions(StringBuilder sb) {
         List definitions = new ArrayList();
         String query = "SELECT * FROM " + TABLE + " WHERE ID IN " + sb;
-        Cursor cursor = db.rawQuery(query, null);
+        Cursor cursor = database.rawQuery(query, null);
         cursor.moveToFirst();
         while(!cursor.isAfterLast()) {
             definitions.add(new Definition(cursor));
@@ -191,7 +191,7 @@ public class DefinitionsManager {
     }
 
     public void vote(int v) {
-        boolean wasOnTodaysListBeforeVote = currentDefinition.isOnTodaysList(db);
+        boolean wasOnTodaysListBeforeVote = currentDefinition.isOnTodaysList(database);
         if(v == 1) {
             if(currentDefinition.getRight() == 0) {
                 newQuestions--;
@@ -200,19 +200,19 @@ public class DefinitionsManager {
         } else {
             currentDefinition.downvote();
         }
-        boolean isOnTodaysListAfterVote = currentDefinition.isOnTodaysList(db);
+        boolean isOnTodaysListAfterVote = currentDefinition.isOnTodaysList(database);
         if(wasOnTodaysListBeforeVote && !isOnTodaysListAfterVote) {
             questionsForToday--;
         }
         activity.informationChanged(getInformation());
-        db.execSQL(currentDefinition.getUpdateQuery()); //update definition inside database
+        database.execSQL(currentDefinition.getUpdateQuery()); //update definition inside database
         checkEmptyListAsync();
     }
 
     public void markCurrentDef(String markString) {
         //adds user's observation to the definition inside database
         currentDefinition.mark(markString);
-        db.execSQL(currentDefinition.getUpdateQuery());
+        database.execSQL(currentDefinition.getUpdateQuery());
     }
 
     private void checkEmptyListAsync() {

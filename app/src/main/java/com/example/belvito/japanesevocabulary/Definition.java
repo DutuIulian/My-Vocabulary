@@ -59,6 +59,18 @@ public class Definition
         return right;
     }
 
+    public int getWrong() {
+        return wrong;
+    }
+
+    public String getLastAnswer() {
+        return lastAnswer;
+    }
+
+    public double getRememberInterv() {
+        return rememberInterv;
+    }
+
     public String getMark() {
         return markString;
     }

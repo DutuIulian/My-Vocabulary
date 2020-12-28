@@ -10,9 +10,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.example.belvito.japanesevocabulary.ui.DefinitionsFragment;
-import com.example.belvito.japanesevocabulary.ui.HomeFragment;
-
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawerLayout;
     private DatabaseHelper databaseHelper;
@@ -51,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        DefinitionsFragment definitionsFragment;
         switch (item.getItemId()) {
             case R.id.nav_home:
                 homeFragment = new HomeFragment();
@@ -60,8 +58,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         homeFragment).commit();
                 break;
             case R.id.nav_definitions:
+                definitionsFragment = new DefinitionsFragment();
+                definitionsFragment.setDatabase(databaseHelper.getReadableDatabase());
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                        new DefinitionsFragment()).commit();
+                        definitionsFragment).commit();
                 homeFragment = null;
                 break;
         }

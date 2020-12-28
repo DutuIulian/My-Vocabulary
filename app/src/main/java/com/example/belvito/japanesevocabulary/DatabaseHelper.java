@@ -20,9 +20,11 @@ import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+
+    public static String TABLE_NAME = "expressions";
+
     private static String DB_PATH;
     private static String DB_NAME = "data.db";
-    private static String TABLE_NAME = "expressions";
     private static final int DB_VERSION = 1;
 
     private SQLiteDatabase mDataBase;
@@ -38,8 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         this.mContext = context;
 
         copyDataBase();
-
-        this.getReadableDatabase();
+        //getReadableDatabase(); seems it doesn't do anything
     }
 
     private boolean dataBaseFileExists() {
@@ -48,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void copyDataBase() {
-        if (!dataBaseFileExists()) {
+        //if (!dataBaseFileExists()) {
             this.getReadableDatabase();
             this.close();
             try {
@@ -56,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } catch (IOException mIOException) {
                 throw new Error("ErrorCopyingDataBase");
             }
-        }
+        //}
     }
 
     private void copyDBFile() throws IOException {
