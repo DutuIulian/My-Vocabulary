@@ -186,8 +186,9 @@ public class DefinitionsManager {
     }
 
     public String getInformation() {
-        return newQuestions + " more new questions\n"
-                + "and " + questionsForToday + " questions for today";
+        //todo handle 0/1/20+
+        return newQuestions + " întrebări noi rămase\n"
+                + "și " + questionsForToday + " întrebări pentru azi";
     }
 
     public void vote(int v) {
@@ -209,7 +210,7 @@ public class DefinitionsManager {
         checkEmptyListAsync();
     }
 
-    public void markCurrentDef(String markString) {
+    public void markCurrentDefinition(String markString) {
         //adds user's observation to the definition inside database
         currentDefinition.mark(markString);
         database.execSQL(currentDefinition.getUpdateQuery());

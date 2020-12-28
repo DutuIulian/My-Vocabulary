@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment {
 
     public void markButtonPressed(View v) {
         String markString = markEdit.getText().toString();
-        definitionsManager.markCurrentDef(markString);
+        definitionsManager.markCurrentDefinition(markString);
     }
 
     private void addListenersToButtons(View root)

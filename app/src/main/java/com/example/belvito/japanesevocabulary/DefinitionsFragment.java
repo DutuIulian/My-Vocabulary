@@ -1,17 +1,21 @@
 package com.example.belvito.japanesevocabulary;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class DefinitionsFragment extends Fragment {
 
@@ -25,8 +29,15 @@ public class DefinitionsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_definitions, container, false);
+        final Context context = root.getContext();
         TableLayout tableLayout = root.findViewById(R.id.table);
-        Context context = root.getContext();
+        FloatingActionButton addButton = root.findViewById(R.id.fab);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(context, AddDefinitionActivity.class);
+                startActivity(intent);
+            }
+        });
 
         TableRow headerRow = new TableRow(context);
         headerRow.addView(getTextView("Expresie", context));
@@ -83,7 +94,7 @@ public class DefinitionsFragment extends Fragment {
         } else if(interval * 24 * 60 >= 1) {
             return (int)(24 * 60 * interval) + "m";
         } else {
-            return (int)(24 * 60 * 60 * interval) + "h";
+            return (int)(24 * 60 * 60 * interval) + "s";
         }
     }
 }

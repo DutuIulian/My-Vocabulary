@@ -29,6 +29,11 @@ public class Definition
         expression = "There are no expressions left";
     }
 
+    public Definition(String expression, String translation) {
+        this.expression = expression;
+        this.translation = translation;
+    }
+
     public Definition(Cursor cursor) {
         try {
             ID = cursor.getInt(0);
@@ -118,6 +123,11 @@ public class Definition
                 + ", lastAnswer = '" + lastAnswer + "', rememberInterv = " + rememberInterv
                 + ", markString = '" + markString + "'"
                 + " WHERE ID = " + ID;
+    }
+
+    public String getInsertQuery(){
+        return "INSERT INTO " + TABLE_NAME + "(expression, translation) "
+                + "VALUES('" + expression + "', '" + translation + "')";
     }
 
     public boolean isOnTodaysList(SQLiteDatabase db) {

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomeFragment">
 
     <LinearLayout
+        android:layout_marginTop="30dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -15,88 +16,79 @@
             android:id="@+id/question"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp" />
+            android:layout_marginHorizontal="14dp" />
 
         <EditText
             android:id="@+id/answer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginLeft="14dp"
-            android:layout_marginEnd="14dp"
-            android:layout_marginRight="14dp"
-            android:gravity="center_horizontal"
-            android:layout_below="@+id/question" />
+            android:layout_marginHorizontal="14dp"
+            android:gravity="center_horizontal"/>
 
         <LinearLayout
-            android:id="@+id/buttonsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginLeft="14dp"
-            android:layout_marginEnd="14dp"
-            android:layout_marginRight="14dp"
-            android:layout_below="@+id/answer">
-
-            <Button
-                android:id="@+id/upvote"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="▲"/>
-
-            <Button
-                android:id="@+id/downvote"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="▼"/>
+            android:layout_marginHorizontal="14dp">
 
             <Button
                 android:id="@+id/show"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="SHOW"/>
+                android:text="Afișează răspuns"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/upvote"
+                android:layout_weight="2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="+1"
+                android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/downvote"
+                android:layout_weight="2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-1"
+                android:textAllCaps="false" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="14dp">
 
             <Button
                 android:id="@+id/next"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="▶"/>
+                android:text="Următorul"
+                android:textAllCaps="false" />
 
             <Button
                 android:id="@+id/skip"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="▶▶"/>
+                android:text="Sari întrebarea"
+                android:textAllCaps="false" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/markLayout"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginLeft="14dp"
-            android:layout_marginEnd="14dp"
-            android:layout_marginRight="14dp"
-            android:layout_below="@+id/buttonsLayout">
+            android:layout_marginHorizontal="14dp">
+
             <EditText
                 android:id="@+id/markEdit"
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_marginLeft="14dp"
-                android:layout_marginEnd="14dp"
-                android:layout_marginRight="14dp"
+                android:layout_marginHorizontal="14dp"
                 android:gravity="center_horizontal" />
 
             <Button
@@ -104,7 +96,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="COMMENT" />
+                android:text="Comentează"
+                android:textAllCaps="false" />
         </LinearLayout>
 
         <TextView
@@ -112,42 +105,35 @@
             android:lines="2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginLeft="14dp"
-            android:layout_marginTop="1dp"
-            android:layout_marginEnd="14dp"
-            android:layout_marginRight="14dp"
-            android:gravity="center_horizontal"
-            android:layout_below="@+id/markLayout"/>
+            android:layout_marginHorizontal="14dp"
+            android:gravity="center_horizontal"/>
 
         <LinearLayout
-            android:id="@+id/importExport"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="14dp"
-            android:layout_marginLeft="14dp"
-            android:layout_marginEnd="14dp"
-            android:layout_marginRight="14dp"
-            android:layout_below="@+id/information"
+            android:layout_marginHorizontal="14dp"
             android:gravity="center_horizontal">
+
             <Button
                 android:id="@+id/importExpr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="IMPORT EXPR"/>
+                android:text="Importă expresii"
+                android:textAllCaps="false" />
 
             <Button
                 android:id="@+id/importDB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="IMPORT DB"/>
+                android:text="Importă o bază de date"
+                android:textAllCaps="false" />
 
             <Button
                 android:id="@+id/exportDB"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="EXPORT DB"/>
-
+                android:text="Exportă o bază de date"
+                android:textAllCaps="false" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
