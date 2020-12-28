@@ -14,6 +14,7 @@ import java.util.Date;
 public class Definition
 {
     private final static double FACTOR = 2;
+    private final static double INTERVAL_MIN = 0.0001;
     private final static String TABLE_NAME = "expressions";
     private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private int ID;
@@ -84,8 +85,11 @@ public class Definition
             long lastAns = sdf.parse(lastAnswer).getTime();
             long earliestValidDate = sdf.parse("2000-01-01 00:00:00").getTime();
             if(lastAns > earliestValidDate) {
-                rememberInterv = (double) (new Date().getTime() - lastAns)
+                double newRememberInterv = (double) (new Date().getTime() - lastAns)
                         / (1000 * 60 * 60 * 24) * FACTOR;
+                if(newRememberInterv > rememberInterv) {
+                    rememberInterv = newRememberInterv;
+                }
             } else {
                 rememberInterv = FACTOR * rememberInterv;
             }
@@ -98,6 +102,9 @@ public class Definition
 
     public void downvote() {
         rememberInterv /= FACTOR;
+        if(rememberInterv < INTERVAL_MIN) {
+            rememberInterv = INTERVAL_MIN;
+        }
         lastAnswer = sdf.format(new Date());
         wrong++;
     }

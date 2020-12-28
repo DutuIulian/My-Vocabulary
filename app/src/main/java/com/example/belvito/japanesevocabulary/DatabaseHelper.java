@@ -49,7 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void copyDataBase() {
-        //if (!dataBaseFileExists()) {
+        if (!dataBaseFileExists()) {
             this.getReadableDatabase();
             this.close();
             try {
@@ -57,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } catch (IOException mIOException) {
                 throw new Error("ErrorCopyingDataBase");
             }
-        //}
+        }
     }
 
     private void copyDBFile() throws IOException {

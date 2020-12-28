@@ -51,9 +51,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DefinitionsFragment definitionsFragment;
         switch (item.getItemId()) {
             case R.id.nav_home:
-                homeFragment = new HomeFragment();
-                homeFragment.setDatabaseHelper(databaseHelper);
-                homeFragment.setDefinitionsManager(definitionsManager);
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         homeFragment).commit();
                 break;
@@ -62,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 definitionsFragment.setDatabase(databaseHelper.getReadableDatabase());
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         definitionsFragment).commit();
-                homeFragment = null;
                 break;
         }
         drawerLayout.closeDrawer(GravityCompat.START);

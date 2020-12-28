@@ -70,6 +70,20 @@ public class DefinitionsFragment extends Fragment {
         tableRow.addView(getTextView(Integer.toString(definition.getRight()), context));
         tableRow.addView(getTextView(Integer.toString(definition.getWrong()), context));
         tableRow.addView(getTextView(definition.getLastAnswer(), context));
-        tableRow.addView(getTextView(Double.toString(definition.getRememberInterv()), context));
+        String intervalString = buildIntervalString(definition.getRememberInterv());
+        tableRow.addView(getTextView(intervalString, context));
+    }
+
+    private String buildIntervalString(double interval)
+    {
+        if(interval >= 1) {
+            return (int)interval + " zile";
+        } else if(interval * 24 >= 1) {
+            return (int)(24 * interval) + "h";
+        } else if(interval * 24 * 60 >= 1) {
+            return (int)(24 * 60 * interval) + "m";
+        } else {
+            return (int)(24 * 60 * 60 * interval) + "h";
+        }
     }
 }

@@ -38,9 +38,14 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
-        currentDefinition = definitionsManager.getNextDefinition(true);
+        if(currentDefinition == null) {
+            currentDefinition = definitionsManager.getNextDefinition(true);
+        }
         question = root.findViewById(R.id.question);
         question.setText(currentDefinition.getExpression());
+        if(currentState == State.SHOWN || currentState == State.VOTED) {
+            showTranslationAndMark();
+        }
         answer = root.findViewById(R.id.answer);
         markEdit = root.findViewById(R.id.markEdit);
         information = root.findViewById(R.id.information);
@@ -51,11 +56,15 @@ public class HomeFragment extends Fragment {
 
     public void showButtonPressed(View v) {
         if (currentState == State.NOTHING && currentDefinition.getID() != 0) {
-            question.append("\n" + currentDefinition.getTranslation());
-            if(currentDefinition.getMark() != null && !currentDefinition.getMark().equals("")) {
-                question.append("\nComment: " + currentDefinition.getMark());
-            }
+            showTranslationAndMark();
             currentState = State.SHOWN;
+        }
+    }
+
+    private void showTranslationAndMark() {
+        question.append("\n" + currentDefinition.getTranslation());
+        if(currentDefinition.getMark() != null && !currentDefinition.getMark().equals("null")) {
+            question.append("\nComment: " + currentDefinition.getMark());
         }
     }
 
