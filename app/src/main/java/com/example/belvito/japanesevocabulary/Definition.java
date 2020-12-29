@@ -53,8 +53,16 @@ public class Definition
         return ID;
     }
 
+    public void setExpression(String expression) {
+        this.expression = expression;
+    }
+
     public String getExpression() {
         return expression;
+    }
+
+    public void setTranslation(String translation) {
+        this.translation = translation;
     }
 
     public String getTranslation() {
@@ -87,9 +95,8 @@ public class Definition
 
     public void upvote() {
         try {
-            long lastAns = sdf.parse(lastAnswer).getTime();
-            long earliestValidDate = sdf.parse("2000-01-01 00:00:00").getTime();
-            if(lastAns > earliestValidDate) {
+            if(isLasAnswerDateValid()) {
+                long lastAns = sdf.parse(lastAnswer).getTime();
                 double newRememberInterv = (double) (new Date().getTime() - lastAns)
                         / (1000 * 60 * 60 * 24) * FACTOR;
                 if(newRememberInterv > rememberInterv) {
@@ -119,15 +126,21 @@ public class Definition
     }
 
     public String getUpdateQuery() {
-        return "UPDATE " + TABLE_NAME + " SET rightAnswers = " + right + ", wrongAnswers = " + wrong
-                + ", lastAnswer = '" + lastAnswer + "', rememberInterv = " + rememberInterv
-                + ", markString = '" + markString + "'"
-                + " WHERE ID = " + ID;
+        return "UPDATE " + TABLE_NAME + " SET expression='" + expression + "',"
+                + "translation='" + translation + "',"
+                + "rightAnswers=" + right + ", wrongAnswers=" + wrong + ","
+                + "lastAnswer='" + lastAnswer + "', rememberInterv=" + rememberInterv + ","
+                + "markString='" + markString + "' "
+                + "WHERE ID=" + ID;
     }
 
-    public String getInsertQuery(){
+    public String getInsertQuery() {
         return "INSERT INTO " + TABLE_NAME + "(expression, translation) "
                 + "VALUES('" + expression + "', '" + translation + "')";
+    }
+
+    public String getDeleteQuery() {
+        return "DELETE FROM " + TABLE_NAME + " WHERE ID=" + ID;
     }
 
     public boolean isOnTodaysList(SQLiteDatabase db) {
@@ -139,5 +152,15 @@ public class Definition
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         return cursor.getInt(0) == 1;
+    }
+
+    public boolean isLasAnswerDateValid() {
+        try {
+            long lastAns = sdf.parse(lastAnswer).getTime();
+            long earliestValidDate = sdf.parse("2000-01-01 00:00:00").getTime();
+            return lastAns > earliestValidDate;
+        } catch(Exception e) {
+            return false;
+        }
     }
 }

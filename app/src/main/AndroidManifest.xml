@@ -13,6 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".AddDefinitionActivity"></activity>
+        <activity android:name=".EditDefinitionActivity"></activity>
         <!--
         <activity
             android:name=".NavigationDrawerActivity"
