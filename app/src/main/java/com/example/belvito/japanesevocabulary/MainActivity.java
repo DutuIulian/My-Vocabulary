@@ -1,8 +1,12 @@
 package com.example.belvito.japanesevocabulary;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import com.google.android.material.navigation.NavigationView;
+
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -38,17 +42,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (savedInstanceState == null) {
             homeFragment = new HomeFragment();
-            homeFragment.setDatabaseHelper(databaseHelper);
             homeFragment.setDefinitionsManager(definitionsManager);
             getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                     homeFragment).commit();
             navigationView.setCheckedItem(R.id.nav_home);
+        }
+
+        requestPermissions();
+    }
+
+    private void requestPermissions() {
+        final int REQUEST_EXTERNAL_STORAGE = 1;
+        final String[] PERMISSIONS_STORAGE = {
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+
+        int permission = ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
         }
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         DefinitionsFragment definitionsFragment;
+        DatabaseFragment databaseFragment;
+
         switch (item.getItemId()) {
             case R.id.nav_home:
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
@@ -60,6 +82,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
                         definitionsFragment).commit();
                 break;
+            case R.id.nav_database:
+                databaseFragment = new DatabaseFragment();
+                databaseFragment.setDatabaseHelper(databaseHelper);
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
+                        databaseFragment).commit();
         }
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;

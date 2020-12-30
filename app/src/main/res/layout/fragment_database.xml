@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomeFragment">
+
+    <LinearLayout
+        android:layout_marginTop="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/importExpr"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="Importă expresii"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/importDB"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Importă o bază de date"
+            android:layout_marginLeft="20dp"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/exportDB"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="Exportă baza de date"
+            android:layout_marginLeft="20dp"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+</LinearLayout>

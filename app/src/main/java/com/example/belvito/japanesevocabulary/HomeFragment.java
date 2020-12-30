@@ -1,7 +1,5 @@
 package com.example.belvito.japanesevocabulary;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -11,20 +9,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class HomeFragment extends Fragment {
 
-    private DatabaseHelper databaseHelper;
     private DefinitionsManager definitionsManager;
     private Definition currentDefinition;
     private TextView question, information;
     private EditText answer, markEdit;
     private State currentState = State.NOTHING;
-
-    public void setDatabaseHelper(DatabaseHelper databaseHelper) {
-        this.databaseHelper = databaseHelper;
-    }
+    private static boolean databaseChanged = false;
 
     public void setDefinitionsManager(DefinitionsManager definitionsManager) {
         this.definitionsManager = definitionsManager;
@@ -38,6 +31,11 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
+        if(databaseChanged) {
+            definitionsManager.repopulateList();
+            currentDefinition = definitionsManager.getNextDefinition(true);
+            databaseChanged = false;
+        }
         if(currentDefinition == null) {
             currentDefinition = definitionsManager.getNextDefinition(true);
         }
@@ -100,41 +98,6 @@ public class HomeFragment extends Fragment {
         showNextDefinition(false);
     }
 
-    public void importExprButtonPressed(View v) {
-        if(databaseHelper.importNewExpressions()) {
-            definitionsManager.repopulateList();
-            showNextDefinition(true);
-        }
-    }
-
-    public void importButtonPressed(View v) {
-        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which){
-                    case DialogInterface.BUTTON_POSITIVE:
-                        databaseHelper.importDBFile();
-                        definitionsManager.repopulateList();
-                        showNextDefinition(true);
-                        break;
-
-                    case DialogInterface.BUTTON_NEGATIVE:
-                        Toast.makeText(getActivity(), "Import cancelled", Toast.LENGTH_LONG).show();
-                        break;
-                }
-            }
-        };
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener).show();
-
-    }
-
-    public void exportButtonPressed(View v) {
-        databaseHelper.exportDBFile();
-    }
-
     public void informationChanged(String info) {
         information.setText(info);
     }
@@ -152,9 +115,6 @@ public class HomeFragment extends Fragment {
         Button nextButton = root.findViewById(R.id.next);
         Button skipButton = root.findViewById(R.id.skip);
         Button markButton = root.findViewById(R.id.mark);
-        Button importExprButton = root.findViewById(R.id.importExpr);
-        Button importDbButton = root.findViewById(R.id.importDB);
-        Button exportDbButton = root.findViewById(R.id.exportDB);
 
         upvoteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -186,20 +146,9 @@ public class HomeFragment extends Fragment {
                 markButtonPressed(v);
             }
         });
-        importExprButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                importExprButtonPressed(v);
-            }
-        });
-        importDbButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                importButtonPressed(v);
-            }
-        });
-        exportDbButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                exportButtonPressed(v);
-            }
-        });
+    }
+
+    public static void informDatabaseChanged() {
+        databaseChanged = true;
     }
 }

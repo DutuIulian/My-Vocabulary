@@ -88,8 +88,7 @@
                 android:layout_weight="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="14dp"
-                android:gravity="center_horizontal" />
+                android:layout_marginHorizontal="14dp"/>
 
             <Button
                 android:id="@+id/mark"
@@ -107,33 +106,5 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="14dp"
             android:gravity="center_horizontal"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="14dp"
-            android:gravity="center_horizontal">
-
-            <Button
-                android:id="@+id/importExpr"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Importă expresii"
-                android:textAllCaps="false" />
-
-            <Button
-                android:id="@+id/importDB"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Importă o bază de date"
-                android:textAllCaps="false" />
-
-            <Button
-                android:id="@+id/exportDB"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Exportă o bază de date"
-                android:textAllCaps="false" />
-        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

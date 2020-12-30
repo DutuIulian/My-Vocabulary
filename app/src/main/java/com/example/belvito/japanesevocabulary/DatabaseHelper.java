@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Environment;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -16,7 +16,9 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
 import java.nio.channels.FileChannel;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -28,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
 
     private SQLiteDatabase mDataBase;
-    private final Context mContext;
+    private final Context context;
     private boolean mNeedUpdate = false;
 
     public DatabaseHelper(Context context) {
@@ -37,7 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             DB_PATH = context.getApplicationInfo().dataDir + "/databases/";
         else
             DB_PATH = "/data/data/" + context.getPackageName() + "/databases/";
-        this.mContext = context;
+        this.context = context;
 
         copyDataBase();
         //getReadableDatabase(); seems it doesn't do anything
@@ -61,8 +63,91 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private void copyDBFile() throws IOException {
-        InputStream mInput = mContext.getResources().openRawResource(R.raw.data);
-        OutputStream mOutput = new FileOutputStream(DB_PATH + DB_NAME);
+        InputStream input = context.getResources().openRawResource(R.raw.data);
+        OutputStream output = new FileOutputStream(DB_PATH + DB_NAME);
+        writeInputStreamToOutputStream(input, output);
+    }
+
+    public boolean importNewExpressions(Uri uri) {
+        SQLiteDatabase db = getReadableDatabase();
+        BufferedReader bfr = null;
+        try {
+            InputStream input = context.getContentResolver().openInputStream(uri);
+            Reader fr = new InputStreamReader(input);
+            bfr = new BufferedReader(fr);
+            String line;
+            boolean newDefinitionAdded = false;
+            while((line = bfr.readLine()) != null) {
+                int i = line.indexOf('=');
+                String expr = line.substring(0, i);
+                String trans = line.substring(i + 1);
+                Cursor c = db.rawQuery("SELECT * FROM " + TABLE_NAME +
+                        " WHERE expression LIKE \"" + expr + "\"", null);
+                if(c.getCount() == 0) {
+                    db.execSQL("INSERT INTO " + TABLE_NAME + "(expression, translation) " +
+                            "VALUES(\"" + expr + "\", \"" + trans + "\")");
+                    newDefinitionAdded = true;
+                }
+            }
+
+            if(newDefinitionAdded) {
+                Toast.makeText(context, "Expresiile au fost importate cu succes", Toast.LENGTH_LONG).show();
+                return true;
+            } else {
+                Toast.makeText(context, "Nu a fost importată nicio definție nouă", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void importDBFile(Uri uri) {
+        try {
+            InputStream input = context.getContentResolver().openInputStream(uri);
+            OutputStream  output = new FileOutputStream(DB_PATH + DB_NAME);
+            writeInputStreamToOutputStream(input, output);
+            Toast.makeText(context, "Baza de date a fost importată", Toast.LENGTH_LONG).show();
+        } catch(FileNotFoundException e) {
+            Toast.makeText(context, "Acordă permisiuni pentru stocare", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        } catch(Exception e) {
+            Toast.makeText(context, "A apărut o eroare", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
+    public void exportDBFile(Uri uri) {
+        try {
+            FileInputStream input = new FileInputStream(DB_PATH + DB_NAME);
+            File outputFile = new File(uri.getPath());
+            if(!outputFile.exists()) {
+                outputFile.mkdirs();
+                outputFile.createNewFile();
+            }
+            FileOutputStream output = new FileOutputStream(outputFile);
+            writeFromFileToFile(input, output);
+            Toast.makeText(context, "Baza de date a fost exportată",
+                    Toast.LENGTH_LONG).show();
+        } catch(FileNotFoundException e) {
+            Toast.makeText(context, "Acordă permisiuni pentru stocare",
+                    Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+        catch(Exception e) {
+            Toast.makeText(context, "A apărut o eroare", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
+    private void writeFromFileToFile(FileInputStream input, FileOutputStream output) throws IOException {
+        FileChannel fromChannel = input.getChannel();
+        FileChannel toChannel = output.getChannel();
+        fromChannel.transferTo(0, fromChannel.size(), toChannel);
+    }
+
+    private void writeInputStreamToOutputStream(InputStream mInput, OutputStream mOutput) throws IOException {
         byte[] mBuffer = new byte[1024];
         int mLength;
         while ((mLength = mInput.read(mBuffer)) > 0)
@@ -72,79 +157,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         mInput.close();
     }
 
-    public boolean importNewExpressions() {
-        SQLiteDatabase db = getReadableDatabase();
-        BufferedReader bfr = null;
-        try {
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            FileReader fr = new FileReader(path + "/newExpressions.txt");
-            bfr = new BufferedReader(fr);
-            String line;
-            boolean changes = false;
-            while((line = bfr.readLine()) != null) {
-                int i = line.indexOf('=');
-                String expr = line.substring(0, i);
-                String trans = line.substring(i + 1); Log.e("nmc",trans);
-                Cursor c = db.rawQuery("SELECT * FROM " + TABLE_NAME +
-                        " WHERE expression LIKE \"" + expr + "\"", null);
-                if(c.getCount() == 0) {
-                    db.execSQL("INSERT INTO " + TABLE_NAME + "(expression, translation)" +
-                            "VALUES(\"" + expr + "\", \"" + trans + "\")");
-                    changes = true;
-                }
-            }
-            if(changes) {
-                Toast.makeText(mContext, "Import successful", Toast.LENGTH_LONG).show();
-                return true;
-            } else {
-                Toast.makeText(mContext, "No changes made", Toast.LENGTH_LONG).show();
-                return false;
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public void importDBFile() {
-        try {
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File file = new File(path, "/" + DB_NAME);
-            FileInputStream mInput = new FileInputStream(file);
-            FileOutputStream  mOutput = new FileOutputStream(DB_PATH + DB_NAME);
-            writeFromFileToFile(mInput, mOutput);
-            Toast.makeText(mContext, "Import successful", Toast.LENGTH_LONG).show();
-        } catch(FileNotFoundException e) {
-            Toast.makeText(mContext, "Enable storage permission", Toast.LENGTH_LONG).show();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void exportDBFile() {
-        try {
-            FileInputStream mInput = new FileInputStream(DB_PATH + DB_NAME);
-            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File file = new File(path, "/" + DB_NAME);
-            FileOutputStream mOutput = new FileOutputStream(file);
-            writeFromFileToFile(mInput, mOutput);
-            Toast.makeText(mContext, "Export successful",
-                    Toast.LENGTH_LONG).show();
-        } catch(FileNotFoundException e) {
-            Toast.makeText(mContext, "Enable storage permission",
-                    Toast.LENGTH_LONG).show();
-        }
-        catch(Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void writeFromFileToFile(FileInputStream mInput, FileOutputStream mOutput) throws IOException {
-        FileChannel fromChannel = mInput.getChannel();
-        FileChannel toChannel = mOutput.getChannel();
-        fromChannel.transferTo(0, fromChannel.size(), toChannel);
-    }
+    /*public static String getDatabasePath() {
+        return DB_PATH + DB_NAME;
+    }*/
 
     @Override
     public synchronized void close() {

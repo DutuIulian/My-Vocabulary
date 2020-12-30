@@ -16,4 +16,11 @@
         android:name="com.example.belvito.japanesevocabulary.DefinitionsFragment"
         android:label="@string/menu_definitions"
         tools:layout="@layout/fragment_definitions" />
+
+    <fragment
+        android:id="@+id/nav_database"
+        android:name="com.example.belvito.japanesevocabulary.DefinitionsFragment"
+        android:label="@string/menu_database"
+        tools:layout="@layout/fragment_database" />
+
 </navigation>

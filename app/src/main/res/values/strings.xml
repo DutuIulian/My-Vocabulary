@@ -9,5 +9,6 @@
 
     <string name="menu_home">Pagina principală</string>
     <string name="menu_definitions">Vizualizare definiții</string>
+    <string name="menu_database">Import/Export</string>
     <string name="title_activity_add_definition">AddDefinitionActivity</string>
 </resources>
