@@ -2,6 +2,7 @@ package com.example.belvito.japanesevocabulary;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -27,6 +28,10 @@ public class DefinitionsManager {
         populateDefinitionList();
     }
 
+    static public SimpleDateFormat getDateFormat() {
+        return dateFormat;
+    }
+
     private void calculateRemainingNumberOfQuestions() {
         String query1 = "SELECT COUNT(*) FROM " + TABLE + " WHERE rightAnswers = 0";
         Cursor cursor = database.rawQuery(query1,null);
@@ -45,7 +50,8 @@ public class DefinitionsManager {
 
     public Definition getNextDefinition(boolean voted) {
         try {
-            if(!voted && definitions.isEmpty()) { //todo: why !voted?
+            //if user voted, the populateDefinitionList function was already called
+            if(!voted && definitions.isEmpty()) {
                 populateDefinitionList();
             }
             currentDefinition = definitions.get(0);
@@ -136,7 +142,8 @@ public class DefinitionsManager {
             for(int i = 0; i < n; i++) {
                 Date lastAnswer = dateFormat.parse(cursor.getString(1));
                 double rememberInterval = cursor.getDouble(2);
-                probability[i][0] = ((now - lastAnswer.getTime() - rememberInterval) / 1000.0 / 3600 / 24) / rememberInterval;
+                double diffInDays = (now - lastAnswer.getTime()) / 1000.0 / 3600 / 24;
+                probability[i][0] = (diffInDays - rememberInterval) / rememberInterval;
                 probability[i][1] = cursor.getInt(0);
                 sum += probability[i][0];
                 cursor.moveToNext();

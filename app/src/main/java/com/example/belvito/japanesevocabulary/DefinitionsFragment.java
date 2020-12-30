@@ -1,14 +1,11 @@
 package com.example.belvito.japanesevocabulary;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +19,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.Date;
 
 public class DefinitionsFragment extends Fragment {
 
@@ -69,7 +68,19 @@ public class DefinitionsFragment extends Fragment {
 
     private String buildIntervalString(double interval)
     {
-        if(interval >= 1) {
+        if(interval >=365) {
+            interval /= 365;
+            if((int)interval == 1)
+                return "un an";
+            else
+                return (int)interval + " ani";
+        } else if(interval >= 30) {
+            interval /= 30;
+            if((int)interval == 1)
+                return "o lună";
+            else
+                return (int)interval + " luni";
+        } else if(interval >= 1) {
             if((int)interval == 1)
                 return "o zi";
             else if((int)interval < 20)
@@ -157,7 +168,7 @@ public class DefinitionsFragment extends Fragment {
         tableRow.addView(getTextView(Integer.toString(definition.getRight())));
         tableRow.addView(getTextView(Integer.toString(definition.getWrong())));
         if(definition.isLasAnswerDateValid())
-            tableRow.addView(getTextView("Acum un an")); //todo definition.getLastAnswer()
+            tableRow.addView(getTextView(getLastAnswerDateString(definition.getLastAnswer())));
         else
             tableRow.addView(getTextView("-"));
         String intervalString = buildIntervalString(definition.getRememberInterv());
@@ -178,5 +189,17 @@ public class DefinitionsFragment extends Fragment {
         tableRow.addView(button);
         button.getLayoutParams().width = 20;
         button.getLayoutParams().height = 37;
+    }
+
+    private String getLastAnswerDateString(String lastAnswerDate) {
+        try {
+            long lastAnswer = DefinitionsManager.getDateFormat().parse(lastAnswerDate).getTime();
+            long now = new Date().getTime();
+            double diffInDays = (now - lastAnswer) / 1000.0 / 3600 / 24;
+
+            return buildIntervalString(diffInDays);
+        } catch(Exception e) {
+            return "-";
+        }
     }
 }
