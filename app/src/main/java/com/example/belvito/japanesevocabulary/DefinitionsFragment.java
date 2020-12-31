@@ -100,18 +100,6 @@ public class DefinitionsFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == LAUNCH_ADD_DEFINITION_ACTIVITY) {
-            if(resultCode == Activity.RESULT_OK) {
-                database.execSQL(definitionToEdit.getUpdateQuery());
-                Toast.makeText(context,
-                        "Definiția a fost salvată", Toast.LENGTH_SHORT).show();
-                loadDataIntoTable();
-            } else {
-                Toast.makeText(context,
-                        "Definiția nu a putut fi salvată", Toast.LENGTH_SHORT).show();
-            }
-        }
-
         if (requestCode == LAUNCH_EDIT_DEFINITION_ACTIVITY && resultCode == Activity.RESULT_OK) {
             if(definitionToEdit == null) {
                 return;
@@ -119,21 +107,23 @@ public class DefinitionsFragment extends Fragment {
 
             String newExpression = data.getStringExtra("newExpression");
             String newTranslation = data.getStringExtra("newTranslation");
+            byte[] newImage = EditDefinitionActivity.getBitmapByteArray();
 
             if(newExpression != null && newTranslation != null) {
                 definitionToEdit.setExpression(newExpression);
                 definitionToEdit.setTranslation(newTranslation);
-                database.execSQL(definitionToEdit.getUpdateQuery());
+                definitionToEdit.setBitmapByteArray(newImage);
+                definitionToEdit.executeUpdateQuery(database);
                 definitionToEdit = null;
                 loadDataIntoTable();
                 Toast.makeText(context, "Definiția a fost salvată", Toast.LENGTH_SHORT).show();
-            }
-
-            if("delete".equals(data.getStringExtra("action"))) {
+            } else if("delete".equals(data.getStringExtra("action"))) {
                 database.execSQL(definitionToEdit.getDeleteQuery());
                 loadDataIntoTable();
                 Toast.makeText(context, "Definiția a fost ștearsă", Toast.LENGTH_SHORT).show();
             }
+        } else if (requestCode == LAUNCH_ADD_DEFINITION_ACTIVITY && resultCode == Activity.RESULT_OK) {
+            loadDataIntoTable();
         }
     }
 
@@ -182,8 +172,14 @@ public class DefinitionsFragment extends Fragment {
                 Intent intent = new Intent(context, EditDefinitionActivity.class);
                 intent.putExtra("expression", definition.getExpression());
                 intent.putExtra("translation", definition.getTranslation());
+                //intent.putExtra("image", definition.getBitmapByteArray());
+                EditDefinitionActivity.setBitmapByteArray(definition.getBitmapByteArray());
                 definitionToEdit = definition;
-                startActivityForResult(intent, LAUNCH_EDIT_DEFINITION_ACTIVITY);
+                try {
+                    startActivityForResult(intent, LAUNCH_EDIT_DEFINITION_ACTIVITY);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         tableRow.addView(button);

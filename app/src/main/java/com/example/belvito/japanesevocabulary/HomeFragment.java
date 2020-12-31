@@ -1,5 +1,6 @@
 package com.example.belvito.japanesevocabulary;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class HomeFragment extends Fragment {
@@ -16,7 +18,9 @@ public class HomeFragment extends Fragment {
     private Definition currentDefinition;
     private TextView question, information;
     private EditText answer, markEdit;
+    private ImageView imageView;
     private State currentState = State.NOTHING;
+
     private static boolean databaseChanged = false;
 
     public void setDefinitionsManager(DefinitionsManager definitionsManager) {
@@ -41,14 +45,16 @@ public class HomeFragment extends Fragment {
         }
         question = root.findViewById(R.id.question);
         question.setText(currentDefinition.getExpression());
-        if(currentState == State.SHOWN || currentState == State.VOTED) {
-            showTranslationAndMark();
-        }
+        imageView = root.findViewById(R.id.imageViewId);
         answer = root.findViewById(R.id.answer);
         markEdit = root.findViewById(R.id.markEdit);
         information = root.findViewById(R.id.information);
         information.setText(definitionsManager.getInformation());
         addListenersToButtons(root);
+        if(currentState == State.SHOWN || currentState == State.VOTED) {
+            showTranslationAndMark();
+        }
+
         return root;
     }
 
@@ -63,6 +69,11 @@ public class HomeFragment extends Fragment {
         question.append("\n" + currentDefinition.getTranslation());
         if(currentDefinition.getMark() != null && !currentDefinition.getMark().equals("null")) {
             question.append("\nComment: " + currentDefinition.getMark());
+        }
+        byte[] bitmapByteArray = currentDefinition.getBitmapByteArray();
+        if(bitmapByteArray != null) {
+            imageView.setImageBitmap(BitmapFactory.decodeByteArray(
+                    bitmapByteArray, 0, bitmapByteArray.length));
         }
     }
 
@@ -91,6 +102,7 @@ public class HomeFragment extends Fragment {
         question.setText(currentDefinition.getExpression());
         answer.setText("");
         markEdit.setText("");
+        imageView.setImageBitmap(null);
         currentState = State.NOTHING;
     }
 

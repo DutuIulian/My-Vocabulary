@@ -97,7 +97,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 return false;
             }
         } catch(Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
@@ -110,10 +109,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Toast.makeText(context, "Baza de date a fost importată", Toast.LENGTH_LONG).show();
         } catch(FileNotFoundException e) {
             Toast.makeText(context, "Acordă permisiuni pentru stocare", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
         } catch(Exception e) {
             Toast.makeText(context, "A apărut o eroare", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
         }
     }
 
@@ -121,10 +118,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             FileInputStream input = new FileInputStream(DB_PATH + DB_NAME);
             File outputFile = new File(uri.getPath());
-            if(!outputFile.exists()) {
+            /*if(!outputFile.exists()) {
                 outputFile.mkdirs();
                 outputFile.createNewFile();
-            }
+            }*/
             FileOutputStream output = new FileOutputStream(outputFile);
             writeFromFileToFile(input, output);
             Toast.makeText(context, "Baza de date a fost exportată",
@@ -132,11 +129,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch(FileNotFoundException e) {
             Toast.makeText(context, "Acordă permisiuni pentru stocare",
                     Toast.LENGTH_LONG).show();
-            e.printStackTrace();
         }
         catch(Exception e) {
             Toast.makeText(context, "A apărut o eroare", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
         }
     }
 
@@ -155,10 +150,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         mOutput.close();
         mInput.close();
     }
-
-    /*public static String getDatabasePath() {
-        return DB_PATH + DB_NAME;
-    }*/
 
     @Override
     public synchronized void close() {

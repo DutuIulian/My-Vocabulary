@@ -2,7 +2,6 @@ package com.example.belvito.japanesevocabulary;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -213,14 +212,14 @@ public class DefinitionsManager {
             questionsForToday--;
         }
         activity.informationChanged(getInformation());
-        database.execSQL(currentDefinition.getUpdateQuery()); //update definition inside database
+        currentDefinition.executeUpdateQuery(database); //update definition inside database
         checkEmptyListAsync();
     }
 
     public void markCurrentDefinition(String markString) {
         //adds user's observation to the definition inside database
         currentDefinition.mark(markString);
-        database.execSQL(currentDefinition.getUpdateQuery());
+        currentDefinition.executeUpdateQuery(database);
     }
 
     private void checkEmptyListAsync() {

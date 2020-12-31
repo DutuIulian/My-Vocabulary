@@ -2,12 +2,8 @@ package com.example.belvito.japanesevocabulary;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+import android.database.sqlite.SQLiteStatement;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -23,6 +19,7 @@ public class Definition
     private String lastAnswer;
     private double rememberInterv;
     private String markString;
+    private byte[] bitmapByteArray;
 
     public Definition() {
         ID = 0;
@@ -32,6 +29,7 @@ public class Definition
     public Definition(String expression, String translation) {
         this.expression = expression;
         this.translation = translation;
+        this.markString = "";
     }
 
     public Definition(Cursor cursor) {
@@ -44,6 +42,7 @@ public class Definition
             lastAnswer = cursor.getString(5);
             rememberInterv = cursor.getDouble(6);
             markString = cursor.getString(7);
+            bitmapByteArray = cursor.getBlob(8);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -89,6 +88,14 @@ public class Definition
         return markString;
     }
 
+    public void setBitmapByteArray(byte[] bitmapByteArray) {
+        this.bitmapByteArray = bitmapByteArray;
+    }
+
+    public byte[] getBitmapByteArray() {
+        return bitmapByteArray;
+    }
+
     public String toString() {
         return expression + " " + translation;
     }
@@ -125,18 +132,45 @@ public class Definition
         this.markString = markString;
     }
 
-    public String getUpdateQuery() {
-        return "UPDATE " + TABLE_NAME + " SET expression='" + expression + "',"
-                + "translation='" + translation + "',"
-                + "rightAnswers=" + right + ", wrongAnswers=" + wrong + ","
-                + "lastAnswer='" + lastAnswer + "', rememberInterv=" + rememberInterv + ","
-                + "markString='" + markString + "' "
-                + "WHERE ID=" + ID;
+    public void executeUpdateQuery(SQLiteDatabase db) {
+        String query = "UPDATE " + TABLE_NAME + " SET expression=?, translation=?, rightAnswers=?, "
+                    + "wrongAnswers=?, lastAnswer=?, rememberInterv=?, markString=?, image=? WHERE ID=?";
+        SQLiteStatement statement = db.compileStatement(query);
+        statement.clearBindings();
+        statement.bindString(1, expression);
+        statement.bindString(2, translation);
+        statement.bindString(3, Integer.toString(right));
+        statement.bindString(4, Integer.toString(wrong));
+        statement.bindString(5, lastAnswer);
+        statement.bindString(6, Double.toString(rememberInterv));
+        if(markString != null) {
+            statement.bindString(7, markString);
+        } else {
+            statement.bindNull(7);
+        }
+
+        if(bitmapByteArray != null) {
+            statement.bindBlob(8, bitmapByteArray);
+        } else {
+            statement.bindNull(8);
+        }
+        statement.bindString(9, Integer.toString(ID));
+
+        statement.executeUpdateDelete();
     }
 
-    public String getInsertQuery() {
-        return "INSERT INTO " + TABLE_NAME + "(expression, translation) "
-                + "VALUES('" + expression + "', '" + translation + "')";
+    public void executeInsertQuery(SQLiteDatabase db) {
+        String query = "INSERT INTO " + TABLE_NAME + "(expression, translation, image) VALUES(?,?,?)";
+        SQLiteStatement statement = db.compileStatement(query);
+        statement.clearBindings();
+        statement.bindString(1, expression);
+        statement.bindString(2,translation);
+        if(bitmapByteArray != null) {
+            statement.bindBlob(3, bitmapByteArray);
+        } else {
+            statement.bindNull(3);
+        }
+        statement.executeInsert();
     }
 
     public String getDeleteQuery() {
