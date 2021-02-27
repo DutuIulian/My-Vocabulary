@@ -153,8 +153,16 @@ public class DefinitionsFragment extends Fragment {
     private void addDataToTableRow(TableRow tableRow, Cursor cursor)
     {
         final Definition definition = new Definition(cursor);
-        tableRow.addView(getTextView(definition.getExpression()));
-        tableRow.addView(getTextView(definition.getTranslation()));
+        String expression = definition.getExpression();
+        if(expression.length() >= 15)
+            expression = expression.substring(0, 11) + "...";
+        tableRow.addView(getTextView(expression));
+
+        String translation = definition.getTranslation();
+        if(translation.length() >= 18)
+            translation = translation.substring(0, 14) + "...";
+        tableRow.addView(getTextView(translation));
+
         tableRow.addView(getTextView(Integer.toString(definition.getRight())));
         tableRow.addView(getTextView(Integer.toString(definition.getWrong())));
         if(definition.isLasAnswerDateValid())

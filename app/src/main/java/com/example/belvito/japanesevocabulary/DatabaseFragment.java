@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,8 +91,7 @@ public class DatabaseFragment extends Fragment {
                 databaseHelper.importDBFile(uri);
                 HomeFragment.informDatabaseChanged();
             } else if (requestCode == LAUNCH_SELECT_FILE_EXPORT_DB) {
-                String path = uri.getPath().split(":")[1];
-                databaseHelper.exportDBFile(Uri.parse(path));
+                databaseHelper.exportDBFile(uri);
             }
         }
     }

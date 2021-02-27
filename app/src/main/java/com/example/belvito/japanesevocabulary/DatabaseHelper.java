@@ -2,6 +2,7 @@ package com.example.belvito.japanesevocabulary;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.CursorWindow;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
@@ -12,12 +13,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.nio.channels.FileChannel;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
@@ -42,6 +43,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         copyDataBase();
         //getReadableDatabase(); seems it doesn't do anything
+        try {
+            Field field = CursorWindow.class.getDeclaredField("sCursorWindowSize");
+            field.setAccessible(true);
+            field.set(null, 100 * 1024 * 1024);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean dataBaseFileExists() {
@@ -117,21 +125,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void exportDBFile(Uri uri) {
         try {
             FileInputStream input = new FileInputStream(DB_PATH + DB_NAME);
-            File outputFile = new File(uri.getPath());
-            /*if(!outputFile.exists()) {
-                outputFile.mkdirs();
-                outputFile.createNewFile();
-            }*/
-            FileOutputStream output = new FileOutputStream(outputFile);
-            writeFromFileToFile(input, output);
+            OutputStream output = context.getContentResolver().openOutputStream(uri);
+            writeInputStreamToOutputStream(input, output);
             Toast.makeText(context, "Baza de date a fost exportată",
                     Toast.LENGTH_LONG).show();
         } catch(FileNotFoundException e) {
             Toast.makeText(context, "Acordă permisiuni pentru stocare",
                     Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
         catch(Exception e) {
             Toast.makeText(context, "A apărut o eroare", Toast.LENGTH_LONG).show();
+            e.printStackTrace();
         }
     }
 
