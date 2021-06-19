@@ -31,7 +31,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private SQLiteDatabase mDataBase;
     private final Context context;
-    private boolean mNeedUpdate = false;
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -42,7 +41,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         this.context = context;
 
         copyDataBase();
-        //getReadableDatabase(); seems it doesn't do anything
         try {
             Field field = CursorWindow.class.getDeclaredField("sCursorWindowSize");
             field.setAccessible(true);
@@ -132,11 +130,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } catch(FileNotFoundException e) {
             Toast.makeText(context, "Acordă permisiuni pentru stocare",
                     Toast.LENGTH_LONG).show();
-            e.printStackTrace();
         }
         catch(Exception e) {
             Toast.makeText(context, "A apărut o eroare", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
         }
     }
 
@@ -170,7 +166,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (newVersion > oldVersion)
-            mNeedUpdate = true;
+
     }
 }

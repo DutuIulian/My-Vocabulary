@@ -180,7 +180,6 @@ public class DefinitionsFragment extends Fragment {
                 Intent intent = new Intent(context, EditDefinitionActivity.class);
                 intent.putExtra("expression", definition.getExpression());
                 intent.putExtra("translation", definition.getTranslation());
-                //intent.putExtra("image", definition.getBitmapByteArray());
                 EditDefinitionActivity.setBitmapByteArray(definition.getBitmapByteArray());
                 definitionToEdit = definition;
                 try {

@@ -42,7 +42,6 @@ public class AddDefinitionActivity extends AppCompatActivity {
         }
 
         Intent returnIntent = new Intent();
-
         try {
             Definition definition = new Definition(
                     expression.getText().toString(), translation.getText().toString());

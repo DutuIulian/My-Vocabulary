@@ -61,7 +61,6 @@ public class EditDefinitionActivity extends AppCompatActivity {
         }
 
         Intent returnIntent = new Intent();
-
         try {
             returnIntent.putExtra("newExpression", expression.getText().toString());
             returnIntent.putExtra("newTranslation", translation.getText().toString());
