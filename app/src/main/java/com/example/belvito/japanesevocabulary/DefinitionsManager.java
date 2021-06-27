@@ -105,12 +105,16 @@ public class DefinitionsManager {
         for(int i = 0; i < n; i++) {
             int j;
             double rand;
+            int tryCount = 0;
             do {
                 rand = 100 * r.nextDouble();
                 j = binarySearch(rand, probabilities);
-            } while(indList.contains(j));
+                tryCount++;
+            } while(indList.contains(j) && tryCount < 100);
             //daca elementul gasit este deja in lista, cauta altul
-            indList.add(j);
+            if(!indList.contains(j)) {
+                indList.add(j);
+            }
         }
         StringBuilder sb = new StringBuilder("(");
         for(int i = 0; i < indList.size() - 1; i++) {
@@ -125,7 +129,7 @@ public class DefinitionsManager {
     private double[][] getProbabilities() {
         String query1 = "SELECT ID, lastAnswer, rememberInterv FROM " + TABLE + " " +
                 "WHERE rightAnswers > 0 " +
-                "AND julianday(current_date)+1 - julianday(lastAnswer) - rememberInterv > 0";
+                "AND current_date - julianday(lastAnswer) - rememberInterv > 0";
         Cursor cursor = database.rawQuery(query1, null);
         double[][] probability = null;
         try {
