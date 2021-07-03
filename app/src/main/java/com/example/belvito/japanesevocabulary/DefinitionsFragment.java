@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +62,7 @@ public class DefinitionsFragment extends Fragment {
         textView.setPadding(20, 0, 20, 0);
         textView.setTextSize(9);
         textView.setText(str);
-        textView.setGravity(1);
+        textView.setGravity(Gravity.CENTER_HORIZONTAL);
 
         return textView;
     }
@@ -136,6 +137,7 @@ public class DefinitionsFragment extends Fragment {
         headerRow.addView(getTextView("Răspuns"));
         headerRow.addView(getTextView("Interv."));
         headerRow.addView(getTextView("Editare"));
+        headerRow.setGravity(Gravity.CENTER_HORIZONTAL);
         tableLayout.removeAllViews();
         tableLayout.addView(headerRow);
 
@@ -190,6 +192,7 @@ public class DefinitionsFragment extends Fragment {
             }
         });
         tableRow.addView(button);
+        tableRow.setGravity(Gravity.CENTER_HORIZONTAL);
         button.getLayoutParams().width = 20;
         button.getLayoutParams().height = 37;
     }
