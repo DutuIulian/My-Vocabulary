@@ -38,6 +38,7 @@ public class HomeFragment extends Fragment {
         if(databaseChanged) {
             definitionsManager.repopulateList();
             currentDefinition = definitionsManager.getNextDefinition(true);
+            currentState = State.NOTHING;
             databaseChanged = false;
         }
         if(currentDefinition == null) {
